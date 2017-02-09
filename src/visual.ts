@@ -44,23 +44,24 @@ module powerbi.extensibility.visual {
     //     }
     // }
 
+    // in order to improve the performance, one can update the <head> only in the initial rendering.
+    // set to 'true' if you are using different packages to create the widgets
+    const updateHTMLHead: boolean = false;
+    const renderVisualUpdateType: number[] = [4, 32, 36];
 
     export class Visual implements IVisual {
-        private imageDiv: HTMLDivElement;
-        private imageElement: HTMLImageElement;
+        private rootElement: HTMLElement;
+        private headNodes: Node[];
+        private bodyNodes: Node[];
+
 
         // Snippet for defining the member property which will hold the property pane values
         /*private settings: VisualSettings;*/
 
         public constructor(options: VisualConstructorOptions) {
-            this.imageDiv = document.createElement('div');
-            this.imageDiv.className = 'rcv_autoScaleImageContainer';
-            options.element.appendChild(this.imageDiv);
-            
-            this.imageElement = document.createElement('img');
-            this.imageElement.className = 'rcv_autoScaleImage';
-
-            this.imageDiv.appendChild(this.imageElement);
+            this.rootElement = options.element;
+            this.headNodes = [];
+            this.bodyNodes = [];
         }
 
         public update(options: VisualUpdateOptions) {
@@ -74,23 +75,44 @@ module powerbi.extensibility.visual {
 
             this.updateObjects(dataView.metadata.objects);
 
-            let imageUrl: string = null;
+            let payloadBase64: string = null;
             if (dataView.scriptResult && dataView.scriptResult.payloadBase64) {
-                imageUrl = "data:image/png;base64," + dataView.scriptResult.payloadBase64;
+                payloadBase64 = dataView.scriptResult.payloadBase64;
             }
 
-            if (imageUrl) {
-                this.imageElement.src = imageUrl;
-            } else {
-                this.imageElement.src = null;
+            if (renderVisualUpdateType.indexOf(options.type) == -1) {
+                if (payloadBase64) {
+                    this.injectCodeFromPayload(payloadBase64);
+                }
             }
-
             this.onResizing(options.viewport);
+
         }
 
         public onResizing(finalViewport: IViewport): void {
-            this.imageDiv.style.height = finalViewport.height + 'px';
-            this.imageDiv.style.width = finalViewport.width + 'px';
+
+        }
+
+        private injectCodeFromPayload(payloadBase64: string): void {
+            ResetInjector();
+
+            var el = document.createElement('html');
+            el.innerHTML = window.atob(payloadBase64);
+
+            // update the header data only on the 1st update
+            if (updateHTMLHead || this.headNodes.length == 0) {
+                let head = el.getElementsByTagName('head')[0];
+                this.headNodes = ParseElement(head, document.head);
+            }
+
+            while (this.bodyNodes.length > 0) {
+                let tempNode = this.bodyNodes.pop();
+                document.body.removeChild(tempNode);
+            }
+            let body = el.getElementsByTagName('body')[0];
+            this.bodyNodes = ParseElement(body, document.body);
+
+            RunHTMLWidgetRenderer();
         }
 
         /**
