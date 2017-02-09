@@ -1,0 +1,24 @@
+{
+  "visual": {
+    "name": "rInteractiveSample",
+    "displayName": "R Interactive Sample",
+    "guid": "PBI_CV_980B8DC8_C66B_4CB8_BA8B_35787E5A5CC6",
+    "visualClassName": "Visual",
+    "version": "1.0.0",
+    "description": "",
+    "supportUrl": "",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "1.4.0",
+  "author": {
+    "name": "",
+    "email": ""
+  },
+  "assets": {
+    "icon": "assets/Ricon.png"
+  },
+  "externalJS": [],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": "dependencies.json"
+}
