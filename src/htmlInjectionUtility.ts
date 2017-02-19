@@ -12,14 +12,19 @@ module powerbi.extensibility.visual {
   export function ParseElement(el: HTMLElement , target: HTMLElement) : Node[]
   {
     let arr: Node[] = [];
+    if (!el || !el.hasChildNodes())
+        return
+        
     let nodes = el.children;
     for (var i=0; i<nodes.length; i++)
     {
       let tempNode: HTMLElement; 
-      if (nodes.item(i).nodeName.toLowerCase() == 'script'){
+      if (nodes.item(i).nodeName.toLowerCase() === 'script'){
         tempNode = createScriptNode(nodes.item(i));
-      }else{
-        tempNode = <HTMLElement>nodes.item(i).cloneNode(true);  
+      }
+      else
+      {
+        tempNode = <HTMLElement>nodes.item(i).cloneNode(true);
       }
       target.appendChild(tempNode);
       arr.push(tempNode);
@@ -51,9 +56,7 @@ module powerbi.extensibility.visual {
     let intervalVar = window.setInterval(() => {
       if (injectorReady()) {
         window.clearInterval(intervalVar);
-        console.log('Render');
-        debugger
-        if (window.hasOwnProperty('HTMLWidgets')) {
+        if (window.hasOwnProperty('HTMLWidgets') && window['HTMLWidgets'].staticRender) {
           window['HTMLWidgets'].staticRender();
         }
       }

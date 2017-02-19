@@ -59,12 +59,17 @@ module powerbi.extensibility.visual {
         /*private settings: VisualSettings;*/
 
         public constructor(options: VisualConstructorOptions) {
-            this.rootElement = options.element;
+            if(options && options.element)
+                this.rootElement = options.element;
+
             this.headNodes = [];
             this.bodyNodes = [];
         }
 
         public update(options: VisualUpdateOptions) {
+            if (!options || !options.type || !options.viewport)
+                return;
+
             let dataViews: DataView[] = options.dataViews;
             if (!dataViews || dataViews.length === 0)
                 return;
@@ -80,13 +85,12 @@ module powerbi.extensibility.visual {
                 payloadBase64 = dataView.scriptResult.payloadBase64;
             }
 
-            if (renderVisualUpdateType.indexOf(options.type) == -1) {
+            if (renderVisualUpdateType.indexOf(options.type) === -1) {
                 if (payloadBase64) {
                     this.injectCodeFromPayload(payloadBase64);
                 }
             }
             this.onResizing(options.viewport);
-
         }
 
         public onResizing(finalViewport: IViewport): void {
@@ -96,21 +100,27 @@ module powerbi.extensibility.visual {
         private injectCodeFromPayload(payloadBase64: string): void {
             ResetInjector();
 
-            var el = document.createElement('html');
+            let el: HTMLHtmlElement = document.createElement('html');
             el.innerHTML = window.atob(payloadBase64);
 
             // update the header data only on the 1st update
-            if (updateHTMLHead || this.headNodes.length == 0) {
-                let head = el.getElementsByTagName('head')[0];
-                this.headNodes = ParseElement(head, document.head);
+            if (updateHTMLHead || this.headNodes.length === 0) {
+                let headList: NodeListOf<HTMLHeadElement> = el.getElementsByTagName('head');
+                if (headList && headList.length > 0) {
+                    let head: HTMLHeadElement = headList[0];
+                    this.headNodes = ParseElement(head, document.head);
+                }
             }
 
             while (this.bodyNodes.length > 0) {
-                let tempNode = this.bodyNodes.pop();
+                let tempNode: Node = this.bodyNodes.pop();
                 document.body.removeChild(tempNode);
             }
-            let body = el.getElementsByTagName('body')[0];
-            this.bodyNodes = ParseElement(body, document.body);
+            let bodyList: NodeListOf<HTMLBodyElement> = el.getElementsByTagName('body');
+            if (bodyList && bodyList.length > 0) {
+                let body: HTMLBodyElement = bodyList[0];
+                this.bodyNodes = ParseElement(body, document.body);
+            }
 
             RunHTMLWidgetRenderer();
         }
