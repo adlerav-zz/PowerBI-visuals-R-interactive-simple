@@ -47,7 +47,7 @@ module powerbi.extensibility.visual {
     // in order to improve the performance, one can update the <head> only in the initial rendering.
     // set to 'true' if you are using different packages to create the widgets
     const updateHTMLHead: boolean = false;
-    const renderVisualUpdateType: number[] = [4, 32, 36];
+    const renderVisualUpdateType: number[] = [VisualUpdateType.Resize, VisualUpdateType.ResizeEnd, VisualUpdateType.Resize + VisualUpdateType.ResizeEnd];
 
     export class Visual implements IVisual {
         private rootElement: HTMLElement;
