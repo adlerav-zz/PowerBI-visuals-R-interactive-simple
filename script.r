@@ -1,4 +1,4 @@
-source('.\r_files\flatten_HTML.r')
+source('./r_files/flatten_HTML.r')
 
 ############### Library Declarations ###############
 libraryRequireInstall("ggplot2");
