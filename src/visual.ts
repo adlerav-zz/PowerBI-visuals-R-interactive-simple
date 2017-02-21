@@ -90,18 +90,26 @@ module powerbi.extensibility.visual {
                     this.injectCodeFromPayload(payloadBase64);
                 }
             }
+            
             this.onResizing(options.viewport);
         }
 
         public onResizing(finalViewport: IViewport): void {
-
+            /* add code to handle resizing of the view port */
         }
 
-        private injectCodeFromPayload(payloadBase64: string): void {
+        private injectCodeFromPayload(payloadBase64: string): void {          
             ResetInjector();
 
+            if (!payloadBase64) 
+                return
+
             let el: HTMLHtmlElement = document.createElement('html');
-            el.innerHTML = window.atob(payloadBase64);
+            try {
+                el.innerHTML = window.atob(payloadBase64);
+            } catch (err) {
+                return;
+            }
 
             // update the header data only on the 1st update
             if (updateHTMLHead || this.headNodes.length === 0) {

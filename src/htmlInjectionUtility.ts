@@ -6,7 +6,7 @@ module powerbi.extensibility.visual {
   }
 
   export function injectorReady() : boolean {
-    return injectorCounter == 0;
+    return injectorCounter === 0;
   }
   
   export function ParseElement(el: HTMLElement , target: HTMLElement) : Node[]
